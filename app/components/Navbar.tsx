@@ -1,21 +1,31 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; 
-import gsap from "gsap";
 
-// Multilingual Dictionary
 const translations = {
   en: {
     nav: [
       { name: "HOME", href: "/" },
-      { name: "ABOUT", href: "/about" },
       { name: "SERVICES", href: "/services" },
+      { 
+        name: "COMPANY", 
+        subLinks: [
+          { name: "ABOUT", href: "/about" },
+          { name: "CAREERS", href: "/careers" },
+          { name: "BLOG", href: "/blog" },
+        ] 
+      },
+      { 
+        name: "LEGAL", 
+        subLinks: [
+          { name: "TERMS", href: "/terms" },
+          { name: "PRIVACY", href: "/privacy" },
+        ] 
+      },
       { name: "CONTACT", href: "/contact" },
-      { name: "CAREERS", href: "/careers" },
-      { name: "BLOG", href: "/blog" },
     ],
     slogan: "PERFORMANCE DRIVEN",
     portal: "CLIENT PORTAL",
@@ -26,11 +36,23 @@ const translations = {
   fr: {
     nav: [
       { name: "ACCUEIL", href: "/" },
-      { name: "À PROPOS", href: "/about" },
       { name: "SERVICES", href: "/services" },
+      { 
+        name: "ENTREPRISE", 
+        subLinks: [
+          { name: "À PROPOS", href: "/about" },
+          { name: "CARRIÈRES", href: "/careers" },
+          { name: "BLOG", href: "/blog" },
+        ] 
+      },
+      { 
+        name: "LÉGAL", 
+        subLinks: [
+          { name: "CGU", href: "/terms" },
+          { name: "CONFIDENTIALITÉ", href: "/privacy" },
+        ] 
+      },
       { name: "CONTACT", href: "/contact" },
-      { name: "CARRIÈRES", href: "/careers" },
-      { name: "BLOG", href: "/blog" },
     ],
     slogan: "AXÉ SUR LA PERFORMANCE",
     portal: "PORTAIL CLIENT",
@@ -43,49 +65,45 @@ const translations = {
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null); // For Mobile Accordion
   const pathname = usePathname(); 
 
-  // State for multilingual support
   const [lang, setLang] = useState<"en" | "fr">("en");
   const t = translations[lang];
 
-  // Logic: Force active design if on Privacy or Terms pages
   const isStaticPage = pathname === "/privacy" || pathname === "/terms" || pathname === "/services";
   const showScrolledDesign = isScrolled || isStaticPage;
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const toggleMobileDropdown = (name: string) => {
+    setActiveDropdown(activeDropdown === name ? null : name);
+  };
+
   return (
-    <header className="fixed w-full z-[100] px-6 md:px-12 py-6 transition-all duration-500 font-['Helvetica_Neue',_Helvetica,_Arial,_sans-serif]">
+    <header className="fixed w-full z-[100] px-6 md:px-12 py-6 transition-all duration-500 font-sans">
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: "circOut" }}
-        className={`mx-auto max-w-7xl rounded-none transition-all duration-500 px-8 md:px-12 ${
+        className={`mx-auto max-w-7xl transition-all duration-500 px-8 md:px-12 ${
           showScrolledDesign 
-            ? "bg-[#002B49]/95 backdrop-blur-xl py-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20" 
+            ? "bg-[#002B49]/95 backdrop-blur-xl py-4 shadow-xl border border-white/20" 
             : "bg-transparent py-6 border border-transparent"
         }`}
       >
         <div className="flex justify-between items-center">
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 bg-[#D4AF37] flex items-center justify-center font-black text-[#002B49] overflow-hidden shadow-lg group-hover:rotate-[10deg] transition-transform duration-300">
+            <div className="relative w-10 h-10 bg-[#D4AF37] flex items-center justify-center font-black text-[#002B49] shadow-lg group-hover:rotate-[10deg] transition-transform">
               HM
-              <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-black tracking-tighter text-lg text-white uppercase">
                 SERVICES <span className="text-[#D4AF37]">&</span> LOG
-              </span>
-              <span className="text-[9px] font-black tracking-[0.3em] text-gray-300 uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                {t.slogan}
               </span>
             </div>
           </Link>
@@ -94,43 +112,52 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-10">
             <div className="flex items-center gap-8 border-r border-white/20 pr-10">
               {t.nav.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className="relative text-xs font-black uppercase tracking-[0.2em] text-white/80 hover:text-[#D4AF37] transition-colors group"
-                >
-                  {link.name}
-                  <span className="absolute -bottom-2 left-0 w-0 h-1 bg-[#D4AF37] rounded-none transition-all duration-300 group-hover:w-full" />
-                </Link>
+                link.subLinks ? (
+                  <div key={link.name} className="relative group py-4 -my-4">
+                    <button className="flex items-center gap-1 text-xs font-black uppercase tracking-widest text-white/80 group-hover:text-[#D4AF37] transition-colors">
+                      {link.name}
+                      <motion.span className="inline-block group-hover:rotate-180 transition-transform">▼</motion.span>
+                    </button>
+                    {/* Dropdown content */}
+                    <div className="absolute left-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                      <div className="bg-[#002B49] border border-white/10 p-2 min-w-[180px] shadow-2xl">
+                        {link.subLinks.map(sub => (
+                          <Link 
+                            key={sub.name} 
+                            href={sub.href} 
+                            className="block text-[10px] font-black uppercase tracking-widest text-white/70 hover:text-[#D4AF37] hover:bg-white/5 py-3 px-4 transition-colors"
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    className="text-xs font-black uppercase tracking-widest text-white/80 hover:text-[#D4AF37] transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                )
               ))}
             </div>
             
             <div className="flex items-center gap-4">
-              {/* Language Switcher */}
-              <div className="flex gap-2 mr-4">
-                <button onClick={() => setLang("en")} className={`text-xs font-bold px-2 py-1 border border-[#D4AF37] ${lang === "en" ? "bg-[#D4AF37] text-[#002B49]" : "text-[#D4AF37] hover:bg-[#D4AF37]/10"} transition-colors`}>EN</button>
-                <button onClick={() => setLang("fr")} className={`text-xs font-bold px-2 py-1 border border-[#D4AF37] ${lang === "fr" ? "bg-[#D4AF37] text-[#002B49]" : "text-[#D4AF37] hover:bg-[#D4AF37]/10"} transition-colors`}>FR</button>
-              </div>
-
-              {/* Client Portal Button */}
-              <Link 
-                href="/contact" 
-                className="relative overflow-hidden px-8 py-3 bg-white text-[#002B49] border-2 border-white font-black text-xs uppercase tracking-widest hover:border-[#D4AF37] transition-all duration-300 shadow-xl group"
-              >
-                <span className="relative z-10 group-hover:text-[#002B49] transition-colors">{t.portal}</span>
-                <div className="absolute inset-0 bg-[#D4AF37] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
+              <button onClick={() => setLang(lang === "en" ? "fr" : "en")} className="text-xs font-bold border border-[#D4AF37] px-2 py-1 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-white transition-all">
+                {lang.toUpperCase()}
+              </button>
+              <Link href="/contact" className="px-6 py-2 bg-white text-[#002B49] font-black text-[10px] uppercase tracking-widest hover:bg-[#D4AF37] hover:text-white transition-all">
+                {t.portal}
               </Link>
             </div>
           </div>
 
           {/* MOBILE TOGGLE */}
-          <button 
-            className="md:hidden w-12 h-12 flex flex-col items-center justify-center gap-1.5 bg-white/5 border border-white/20"
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            <span className="w-6 h-0.5 bg-white" />
-            <span className="w-6 h-0.5 bg-[#D4AF37]" />
-            <span className="w-4 h-0.5 bg-white self-end mr-3" />
+          <button className="md:hidden text-white text-2xl" onClick={() => setMobileMenuOpen(true)}>
+            ☰
           </button>
         </div>
       </motion.nav>
@@ -139,67 +166,83 @@ export default function Navbar() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#001B2E]/98 backdrop-blur-2xl z-[200] flex flex-col p-12"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 bg-white z-[200] flex flex-col"
           >
-            <div className="flex justify-between items-center mb-10">
-              <span className="text-[#D4AF37] font-black tracking-widest uppercase text-sm">{t.menu}</span>
-              <button 
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-12 h-12 border border-white/20 flex items-center justify-center text-white text-2xl hover:bg-[#D4AF37] hover:text-[#002B49] transition-colors"
-              >
-                ×
-              </button>
+            {/* Header */}
+            <div className="flex justify-between items-center p-8 border-b border-gray-100">
+              <span className="text-[#002B49] font-black tracking-widest text-sm">{t.menu}</span>
+              <button onClick={() => setMobileMenuOpen(false)} className="text-[#002B49] text-4xl">&times;</button>
             </div>
 
-            {/* Mobile Language Switcher */}
-            <div className="flex gap-4 mb-10 border-b border-white/10 pb-6">
-              <button onClick={() => setLang("en")} className={`text-sm font-bold px-4 py-2 border border-[#D4AF37] ${lang === "en" ? "bg-[#D4AF37] text-[#002B49]" : "text-[#D4AF37]"} transition-colors`}>ENGLISH</button>
-              <button onClick={() => setLang("fr")} className={`text-sm font-bold px-4 py-2 border border-[#D4AF37] ${lang === "fr" ? "bg-[#D4AF37] text-[#002B49]" : "text-[#D4AF37]"} transition-colors`}>FRANÇAIS</button>
-            </div>
-
-            <div className="flex flex-col gap-8">
-              {t.nav.map((link, i) => (
-                <motion.div
-                  key={link.name}
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-4xl md:text-7xl font-black text-white hover:text-[#D4AF37] transition-colors uppercase tracking-tighter"
-                  >
-                    {link.name}
-                  </Link>
-                </motion.div>
+            {/* Scrollable Links */}
+            <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-6">
+              {t.nav.map((link) => (
+                <div key={link.name} className="flex flex-col">
+                  {link.subLinks ? (
+                    <>
+                      <button 
+                        onClick={() => toggleMobileDropdown(link.name)}
+                        className="flex justify-between items-center text-2xl font-black text-[#002B49] uppercase tracking-tighter"
+                      >
+                        {link.name}
+                        <span className={`transition-transform duration-300 ${activeDropdown === link.name ? 'rotate-180' : ''}`}>▾</span>
+                      </button>
+                      <AnimatePresence>
+                        {activeDropdown === link.name && (
+                          <motion.div 
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden flex flex-col gap-4 pl-4 mt-4 border-l-2 border-[#D4AF37]"
+                          >
+                            {link.subLinks.map(sub => (
+                              <Link 
+                                key={sub.name} 
+                                href={sub.href} 
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="text-lg font-bold text-gray-500 uppercase"
+                              >
+                                {sub.name}
+                              </Link>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-2xl font-black text-[#002B49] uppercase tracking-tighter"
+                    >
+                      {link.name}
+                    </Link>
+                  )}
+                </div>
               ))}
               
-              <motion.div
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: t.nav.length * 0.1 }}
-                className="pt-4"
+              <Link 
+                href="/contact" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="mt-4 w-full py-4 bg-[#002B49] text-white text-center font-black uppercase tracking-widest"
               >
-                 <Link 
-                  href="/contact" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="inline-block px-8 py-4 bg-[#D4AF37] text-[#002B49] font-black text-sm uppercase tracking-widest"
-                >
-                  {t.portal}
-                </Link>
-              </motion.div>
+                {t.portal}
+              </Link>
             </div>
 
-            <div className="mt-auto pt-10 border-t border-white/10 flex flex-col gap-6">
-               <p className="text-gray-400 text-xs font-black uppercase tracking-widest leading-loose">
-                 {t.locations}<br />
-                 {t.networkTitle}
+            {/* Footer */}
+            <div className="p-8 bg-gray-50 flex flex-col gap-4">
+               <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">
+                 {t.locations}
                </p>
-               <a href="tel:+243979455511" className="text-[#D4AF37] font-black text-xl">+243 979 455 511</a>
+               <div className="flex gap-4">
+                 <button onClick={() => setLang("en")} className={`text-xs font-black ${lang === 'en' ? 'text-[#D4AF37]' : 'text-gray-400'}`}>EN</button>
+                 <button onClick={() => setLang("fr")} className={`text-xs font-black ${lang === 'fr' ? 'text-[#D4AF37]' : 'text-gray-400'}`}>FR</button>
+               </div>
             </div>
           </motion.div>
         )}

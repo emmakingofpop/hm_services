@@ -105,18 +105,7 @@ export default function Home() {
     })
       .from(".hero-subtitle", { opacity: 0, y: 20, duration: 0.8 }, "-=0.5");
 
-    gsap.utils.toArray<HTMLElement>(".parallax-image").forEach((img) => {
-      gsap.to(img, {
-        yPercent: 20,
-        ease: "none",
-        scrollTrigger: {
-          trigger: img.parentElement,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-    });
+    
 
     gsap.utils.toArray<HTMLElement>(".stagger-grid").forEach((grid) => {
       const items = grid.querySelectorAll(".grid-item");
@@ -162,22 +151,35 @@ export default function Home() {
           </video>
         </div>
 
-        <div className="relative z-20 max-w-5xl text-white mt-20">
-          <h1 className="text-6xl md:text-7xl font-black mb-6 leading-[1.1] overflow-hidden uppercase">
-            <div className="hero-title overflow-hidden"><span className="block">{t.heroTag}</span></div>
-            <div className="hero-title overflow-hidden"><span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-yellow-500">{t.heroTitle}</span></div>
+        <div className="relative z-20 max-w-5xl text-white mt-20 px-4">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-[1.1] overflow-hidden uppercase">
+            <div className="hero-title overflow-hidden">
+              <span className="block">{t.heroTag}</span>
+            </div>
+            <div className="hero-title overflow-hidden">
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-yellow-500">
+                {t.heroTitle}
+              </span>
+            </div>
           </h1>
 
-          <p className="hero-subtitle text-xl md:text-3xl text-gray-300 mb-10 max-w-2xl font-light">
+          <p className="hero-subtitle text-base sm:text-lg md:text-2xl lg:text-3xl text-gray-300 mb-8 md:mb-10 max-w-2xl font-light">
             {t.heroSub}
           </p>
 
-          <div className="flex flex-wrap gap-4">
-            <Link href="/contact" className="hero-btn group relative px-8 py-4 bg-[#D4AF37] text-[#002B49] font-bold rounded-full overflow-hidden transition-all hover:scale-105 uppercase text-sm tracking-wide">
+          <div className="flex flex-wrap gap-3 sm:gap-4">
+            <Link
+              href="/contact"
+              className="hero-btn group relative px-5 sm:px-6 md:px-8 py-3 md:py-4 bg-[#D4AF37] text-[#002B49] font-bold rounded-full overflow-hidden transition-all hover:scale-105 uppercase text-xs sm:text-sm tracking-wide"
+            >
               <span className="relative z-10">{t.btnRfqNav}</span>
               <div className="absolute inset-0 bg-yellow-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
             </Link>
-            <Link href="/services" className="hero-btn px-8 py-4 border border-white/30 backdrop-blur-sm hover:bg-white hover:text-[#002B49] text-white font-bold rounded-full transition-all uppercase text-sm tracking-wide">
+
+            <Link
+              href="/services"
+              className="hero-btn px-5 sm:px-6 md:px-8 py-3 md:py-4 border border-white/30 backdrop-blur-sm hover:bg-white hover:text-[#002B49] text-white font-bold rounded-full transition-all uppercase text-xs sm:text-sm tracking-wide"
+            >
               {t.btnServices}
             </Link>
           </div>
